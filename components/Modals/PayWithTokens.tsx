@@ -17,14 +17,22 @@ import {Swiper as SwiperClass} from "swiper/types";
 import erc20ContractAbi from "../../blockchain/erc20Abi.json";
 import {AbiItem} from "web3-utils";
 import {useWeb3} from "../../hooks/useWeb3";
+import {useSwapContract} from "../../hooks/useSwapContract";
+import {getSwapTokenThunk} from "../../store/slices/swap/swap.thunk";
+import {useAppDispatch} from "../../hooks/useAppDispatch";
 
+
+interface IStore {
+    addressOfStore: string
+    symbolOfToken
+}
 
 interface IProps {
     onChange: (token: IToken) => void
-    addressOfStore: string
+    store: IStore
 }
 
-export const PayWithTokens: FC<IProps> = ({onChange, addressOfStore}) => {
+export const PayWithTokens: FC<IProps> = ({onChange, store}) => {
 
     //store
     const {tokens} = useTypedSelector(state => state.swap)
@@ -54,14 +62,12 @@ export const PayWithTokens: FC<IProps> = ({onChange, addressOfStore}) => {
     const [balanceOfToken, setBalanceOfToken] = useState<number>(null)
     const [selectedToken, setSelectedToken] = useState<IToken>(null)
 
-
-    const handleClickBuy = useCallback(() => {
-
-    }, [])
+    const contract = useSwapContract()
+    const dispatch = useAppDispatch()
+    const {swapToken} = useTypedSelector(state => state.swap)
 
     //ui
     const swiperRef = useRef(null)
-
 
 
     const handleClickToken = useCallback((token: IToken) => {
@@ -70,13 +76,27 @@ export const PayWithTokens: FC<IProps> = ({onChange, addressOfStore}) => {
             setSelectedToken(token)
             const erc20Contract = new web3.eth.Contract(erc20ContractAbi as unknown as AbiItem[], token.address)
             erc20Contract.methods.balanceOf(address).call({from: address})
-                .then(res => {
+                .then(async res => {
                     setBalanceOfToken(+res)
+                    dispatch(getSwapTokenThunk({
+                        tokenFrom: token.symbol,
+                        tokenTo: store.symbolOfToken,
+                        tokenAmountFrom: 0.2
+                    }))
                 })
 
             swiperRef.current.swiper!.slideNext()
         }
     }, [onChange, swiperRef, web3, address])
+
+
+    const handleClickBuy = useCallback(() => {
+        contract.swapTokensForTokensSupportingFee({
+            swapToken,
+            address: address,
+            addressTo: store.addressOfStore
+        })
+    }, [store, swapToken])
 
     return <Portal>
         <ModalContainer name={'pay-with-tokens'}>
@@ -141,13 +161,13 @@ export const PayWithTokens: FC<IProps> = ({onChange, addressOfStore}) => {
                                 <Divider/>
                                 <h3>Address of Token: {selectedToken.address}</h3>
                                 <Divider/>
-                                <h3>Address of Store: {addressOfStore}</h3>
+                                <h3>Address of Store: {store.addressOfStore}</h3>
                                 <Divider/>
                                 <h3>Balance Of: {selectedToken.symbol}</h3>
                                 <h3>{balanceOfToken} {selectedToken.symbol}</h3>
                             </Box>
                         }
-                        <Button css={css`width: 100%`}>
+                        <Button onClick={handleClickBuy} css={css`width: 100%`}>
                             Buy
                         </Button>
                     </SwiperSlide>

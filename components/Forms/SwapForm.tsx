@@ -63,7 +63,6 @@ export const SwapForm: FC<IProps> = ({}) => {
         initialValues,
         validationSchema,
         onSubmit: () => {
-            console.log(swapToken)
             contract.swapTokensForTokensSupportingFee({
                 swapToken,
                 address

@@ -105,7 +105,7 @@ const CheckoutPage: NextPage<IProps> = ({data}) => {
                 }
             </Box>
         </BlurLayout>
-        <PayWithTokens addressOfStore={addressOfNetflix} onChange={() => {
+        <PayWithTokens store={{addressOfStore: addressOfNetflix, symbolOfToken: netflixToken.symbol}} onChange={() => {
         }}/>
     </Box>
 }

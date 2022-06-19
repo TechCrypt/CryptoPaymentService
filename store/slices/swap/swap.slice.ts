@@ -19,7 +19,6 @@ export const swapSlice = createSlice({
     extraReducers: (builder => {
         builder.addCase(getSwapTokenThunk.fulfilled, (state, action: PayloadAction<ISwapToken>) => {
             if (action.payload && action.payload.trade) {
-                console.log(action.payload)
                 state.swapToken = action.payload
             }
         })
