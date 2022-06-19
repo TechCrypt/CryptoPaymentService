@@ -6,6 +6,7 @@ import {useEffect} from 'react'
 import {useAppDispatch} from '../../hooks/useAppDispatch'
 import {setTokens} from '../../store/slices/swap/swap.slice'
 import {Box} from '@mui/material'
+import {useTypedSelector} from "../../hooks/useTypedSelector";
 
 interface IProps {
     data: IToken[]
@@ -14,6 +15,9 @@ interface IProps {
 const index: NextPage<IProps> = ({data}) => {
 
     const dispatch = useAppDispatch()
+    const {address} = useTypedSelector(state => state.blockchain)
+
+
     useEffect(() => {
         if (data) {
             dispatch(setTokens(data))
@@ -22,7 +26,11 @@ const index: NextPage<IProps> = ({data}) => {
 
     return <DefaultLayout>
         <Box display={'flex'} justifyContent={'center'} alignItems={'center'}>
-            <SwapForm/>
+            {
+                address ? <SwapForm/>
+                    :
+                    <h1>Please Connect MetaMask</h1>
+            }
         </Box>
     </DefaultLayout>
 }

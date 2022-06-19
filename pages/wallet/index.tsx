@@ -34,7 +34,6 @@ const index: NextPage<IProps> = ({data}) => {
 
         if (web3 && data && address) {
             (async () => {
-                console.log(data)
                 const tokensAll = await Promise.all(data.map(async token => {
                     const contract = new web3.eth.Contract(erc20Abi as unknown as AbiItem, token.address)
                     const balanceOf = await contract.methods.balanceOf(address).call({from: address})
@@ -56,29 +55,30 @@ const index: NextPage<IProps> = ({data}) => {
             <h1>Wallet</h1>
             <h3>My Tokens</h3>
             {
-                tokens && <List>
-                    {
-                        tokens.map(token => <ListItem button key={token.address} title={token.symbol}>
+                address && tokens ? <List>
+                        {
+                            tokens.map(token => <ListItem button key={token.address} title={token.symbol}>
+                                <Box display={'flex'} flexDirection={'column'}>
+                                    <Box>
+                                        <h4>{token.symbol}</h4>
+                                        <Image src={token.logoURI} loader={() => token.logoURI} width={50} height={50}/>
+                                    </Box>
+                                    <Box>
+                                        Balance of {+token.balanceOf / (1 * token.decimals)}
+                                    </Box>
+                                </Box>
+                            </ListItem>)
+                        }
+                        <ListItem button title={'TECHC'}>
                             <Box display={'flex'} flexDirection={'column'}>
+                                <h4>TECHC</h4>
                                 <Box>
-                                    <h4>{token.symbol}</h4>
-                                    <Image src={token.logoURI} loader={() => token.logoURI} width={50} height={50}/>
-                                </Box>
-                                <Box>
-                                    Balance of {+token.balanceOf / (1 * token.decimals)}
+                                    Balance of {techCToken}
                                 </Box>
                             </Box>
-                        </ListItem>)
-                    }
-                    <ListItem button title={'TECHC'}>
-                        <Box display={'flex'} flexDirection={'column'}>
-                            <h4>TECHC</h4>
-                            <Box>
-                                Balance of {techCToken}
-                            </Box>
-                        </Box>
-                    </ListItem>
-                </List>
+                        </ListItem>
+                    </List>
+                    : <h1>Please Connect MetaMask</h1>
             }
 
         </Box>

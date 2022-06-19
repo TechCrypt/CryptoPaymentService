@@ -75,8 +75,12 @@ const CheckoutPage: NextPage<IProps> = ({data}) => {
     const {address} = useTypedSelector(state => state.blockchain)
     const {setCurrentModal} = useModalManager()
     const handleOnBuyClick = useCallback(() => {
+        if (!address) return dispatch(addNotification({
+            message: 'Please Connect MetaMask',
+            variant: 'error'
+        }))
         setCurrentModal('pay-with-tokens')
-    }, [isUserLogIn])
+    }, [isUserLogIn, address])
 
 
     const {connected} = useConnected()
