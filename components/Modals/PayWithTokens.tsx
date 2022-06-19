@@ -20,6 +20,7 @@ import {useWeb3} from "../../hooks/useWeb3";
 import {useSwapContract} from "../../hooks/useSwapContract";
 import {getSwapTokenThunk} from "../../store/slices/swap/swap.thunk";
 import {useAppDispatch} from "../../hooks/useAppDispatch";
+import {addNotification} from "../../store/slices/notifications/notifications.slice";
 
 
 interface IStore {
@@ -90,11 +91,18 @@ export const PayWithTokens: FC<IProps> = ({onChange, store}) => {
     }, [onChange, swiperRef, web3, address])
 
 
+    const {setCurrentModal} = useModalManager()
     const handleClickBuy = useCallback(() => {
         contract.swapTokensForTokensSupportingFee({
             swapToken,
             address: address,
             addressTo: store.addressOfStore
+        }).then(() => {
+            dispatch(addNotification({
+                message: 'Success Buy!',
+                variant: 'success'
+            }))
+            setCurrentModal(null)
         })
     }, [store, swapToken])
 
