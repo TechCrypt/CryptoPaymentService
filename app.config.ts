@@ -6,3 +6,5 @@ export const commPrivateKey = '22c850aad93db742f9e11656952c08de5c542e438f8084d04
 export const swapContractAddress = '0x747D09E97d0C150d5612134f709A5E7c850EF3B9'
 
 export const paymentContractAddress = '0x5B67A7e18896159fe75a066355944F1284c7b429'
+
+export const techToken = '0xAA26F0Da9BcFf2A09f48aC47D751c234A953b072'

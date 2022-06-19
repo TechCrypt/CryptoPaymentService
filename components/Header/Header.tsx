@@ -33,6 +33,10 @@ const links: IRouterLink[] = [
   {
     name: 'Swap',
     path: '/swap'
+  },
+  {
+    name: 'Wallet',
+    path: '/wallet'
   }
 ]
 
