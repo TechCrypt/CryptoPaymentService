@@ -35,6 +35,8 @@ interface IProps {
 
 export const PayWithTokens: FC<IProps> = ({onChange, store}) => {
 
+    const [loading, setLoading] = useState<boolean>(false)
+
     //store
     const {tokens} = useTypedSelector(state => state.swap)
 
@@ -79,11 +81,13 @@ export const PayWithTokens: FC<IProps> = ({onChange, store}) => {
             erc20Contract.methods.balanceOf(address).call({from: address})
                 .then(async res => {
                     setBalanceOfToken(+res)
-                    dispatch(getSwapTokenThunk({
+                    setLoading(true)
+                    await dispatch(getSwapTokenThunk({
                         tokenFrom: token.symbol,
                         tokenTo: store.symbolOfToken,
                         tokenAmountFrom: 0.2
                     }))
+                    setLoading(false)
                 })
 
             swiperRef.current.swiper!.slideNext()
@@ -93,11 +97,13 @@ export const PayWithTokens: FC<IProps> = ({onChange, store}) => {
 
     const {setCurrentModal} = useModalManager()
     const handleClickBuy = useCallback(() => {
+        setLoading(true)
         contract.swapTokensForTokensSupportingFee({
             swapToken,
             address: address,
             addressTo: store.addressOfStore
         }).then(() => {
+            setLoading(false)
             dispatch(addNotification({
                 message: 'Success Buy!',
                 variant: 'success'
@@ -179,7 +185,7 @@ export const PayWithTokens: FC<IProps> = ({onChange, store}) => {
                                 <h3>{balanceOfToken} {selectedToken.symbol}</h3>
                             </Box>
                         }
-                        <Button onClick={handleClickBuy} css={css`width: 100%`}>
+                        <Button disabled={loading} onClick={handleClickBuy} css={css`width: 100%`}>
                             Buy
                         </Button>
                     </SwiperSlide>
