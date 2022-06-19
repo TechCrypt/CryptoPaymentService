@@ -2,7 +2,7 @@
  /* @jsx jsx */
 import {css, jsx} from '@emotion/react'
 import {ChangeEventHandler, FC, SyntheticEvent, useCallback, useEffect, useMemo, useState} from 'react'
-import {Box, Button, Divider, Tab, Tabs} from '@mui/material'
+import {Box, Button, Divider, Tab, Tabs, TextField} from '@mui/material'
 import {useFormik} from 'formik'
 import * as yup from 'yup'
 import styled from '@emotion/styled'
@@ -44,6 +44,20 @@ const initialValues: IForm = {
 }
 
 
+const StyledTextField = styled(TextField)`
+  border: none !important;
+  padding: 10px 0;
+
+  .MuiOutlinedInput-notchedOutline {
+    border: none !important;
+  }
+
+  .MuiOutlinedInput-input {
+    color: black !important;
+  }
+`
+
+
 interface ISelectedToken {
     address: string
     value: number
@@ -52,7 +66,6 @@ interface ISelectedToken {
 export const SwapForm: FC<IProps> = ({}) => {
 
     const contract = useSwapContract()
-
 
 
     // Form
@@ -65,7 +78,8 @@ export const SwapForm: FC<IProps> = ({}) => {
         onSubmit: () => {
             contract.swapTokensForTokensSupportingFee({
                 swapToken,
-                address
+                address,
+                addressTo: selectedTab === 1 && addressTo
             }).then(() => {
                 const fromTokenContract = new web3.eth.Contract(erc20ContractAbi as unknown as AbiItem, fromToken.address)
                 const toTokenContract = new web3.eth.Contract(erc20ContractAbi as unknown as AbiItem, toToken.address)
@@ -208,6 +222,7 @@ export const SwapForm: FC<IProps> = ({}) => {
         }
     }, [values, selectedTokenTo, selectedTokenFrom])
 
+    const [addressTo, setAddressTo] = useState<string>('')
 
 
     return <StyledContainer>
@@ -216,36 +231,40 @@ export const SwapForm: FC<IProps> = ({}) => {
                 tabItems.map(({label}) => (<Tab key={label} css={css`width: 50%`} label={label}/>))
             }
         </Tabs>
-        {
-            selectedTab === 0 && <form
-                css={css`
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  justify-content: center;
-                  padding: 0 40px 40px 40px;
-                `}
-                onSubmit={handleSubmit}>
-                <CInputSelect
-                    selectedToken={selectedTokenFrom}
-                    label={'From'}
-                    balance={fromToken ? fromToken.value : null}
-                    onClick={handleOnClickSelectToken('from')}
-                    textFieldProps={{
-                        value: values.from,
-                        onChange: handleChangeInputFrom,
-                        id: 'from',
-                        name: 'from',
-                        error: touched.from && Boolean(errors.from),
-                        helperText: touched.from && errors.from,
-                        placeholder: '0.0'
-                    }}/>
-                <Divider/>
+        <form
+            css={css`
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              padding: 0 40px 40px 40px;
+            `}
+            onSubmit={handleSubmit}>
+            <CInputSelect
+                selectedToken={selectedTokenFrom}
+                label={'From'}
+                balance={fromToken ? fromToken.value : null}
+                onClick={handleOnClickSelectToken('from')}
+                textFieldProps={{
+                    value: values.from,
+                    onChange: handleChangeInputFrom,
+                    id: 'from',
+                    name: 'from',
+                    error: touched.from && Boolean(errors.from),
+                    helperText: touched.from && errors.from,
+                    placeholder: '0.0'
+                }}/>
+            <Divider/>
+            <Box display={'flex'} alignItems={'center'}>
+                {
+                    selectedTab === 1 && <StyledTextField value={addressTo} onChange={(e) => setAddressTo(e.target.value)} placeholder={'Address To'}/>
+                }
                 <CInputSelect
                     selectedToken={selectedTokenTo}
                     balance={toToken ? toToken.value : null}
                     onClick={handleOnClickSelectToken('to')}
-                    label={'To'}
+                    label={selectedTab === 1 ? 'To Token' : 'To'}
+                    onlyToken={selectedTab === 1}
                     textFieldProps={{
                         value: values.to,
                         onChange: handleChangeInputTo,
@@ -255,18 +274,18 @@ export const SwapForm: FC<IProps> = ({}) => {
                         helperText: touched.to && errors.to,
                         placeholder: '0.0'
                     }}/>
+            </Box>
 
-                {
-                    address ? <CButton type={'submit'} css={css`width: 100%`}>
-                            Swap
-                        </CButton>
-                        :
-                        <CButton css={css`width: 100%`}>
-                            Wallet Connect
-                        </CButton>
-                }
-            </form>
-        }
+            {
+                address ? <CButton type={'submit'} css={css`width: 100%`}>
+                        Swap
+                    </CButton>
+                    :
+                    <CButton css={css`width: 100%`}>
+                        Wallet Connect
+                    </CButton>
+            }
+        </form>
         <SelectTokenModal onChange={handleSelectToken}/>
     </StyledContainer>
 }

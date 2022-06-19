@@ -15,6 +15,7 @@ interface IProps {
     onClick: () => void
     selectedToken: null | IToken
     balance?: number | null
+    onlyToken?: boolean
 }
 
 const StyledTextField = styled(TextField)`
@@ -49,7 +50,7 @@ const StyledCInputButton = styled.button`
   }
 `
 
-export const CInputSelect: FC<IProps> = ({textFieldProps, label, onClick, selectedToken, balance}) => {
+export const CInputSelect: FC<IProps> = ({textFieldProps, label, onClick, selectedToken, balance, onlyToken}) => {
 
 
     return <Box padding={2}>
@@ -76,11 +77,13 @@ export const CInputSelect: FC<IProps> = ({textFieldProps, label, onClick, select
                 }
             </Box>
             <Box display={'flex'} alignItems={'center'}>
-                <StyledTextField
-                    {...textFieldProps}
-                    InputProps={{type: 'number'}}
-                    style={{color: 'black !important'}}
-                />
+                {
+                    !onlyToken && <StyledTextField
+                        {...textFieldProps}
+                        InputProps={{type: 'number'}}
+                        style={{color: 'black !important'}}
+                    />
+                }
                 <StyledCInputButton
                     css={css`
                       background: ${selectedToken && 'white !important'};
