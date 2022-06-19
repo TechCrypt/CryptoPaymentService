@@ -4,7 +4,10 @@ const nextConfig = {
   compiler: {
     styledComponents: true
   },
-  optimizeFonts: true
+  optimizeFonts: true,
+  eslint: {
+    ignoreDuringBuilds: true
+  }
 }
 
 module.exports = nextConfig
