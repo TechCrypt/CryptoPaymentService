@@ -57,7 +57,7 @@ export const PayWithTokens: FC<IProps> = ({onChange, addressOfStore}) => {
 
     const handleClickBuy = useCallback(() => {
 
-    })
+    }, [])
 
     //ui
     const swiperRef = useRef(null)
