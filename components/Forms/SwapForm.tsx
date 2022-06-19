@@ -160,7 +160,7 @@ export const SwapForm: FC<IProps> = ({}) => {
                     tokenAmountFrom: Number(values.from || values.to)
                 })).then((res) => {
                     if (res && res.payload.trade) {
-                        setFieldValue('from', +res.payload.trade.outputAmount / (10 * (token.decimals)))
+                        setFieldValue('from', res.payload.trade.outputAmount)
                     }
                 })
             }
@@ -182,7 +182,7 @@ export const SwapForm: FC<IProps> = ({}) => {
                     tokenAmountFrom: Number(values.to || values.from)
                 })).then((res) => {
                     if (res && res.payload.trade) {
-                        setFieldValue('to', +res.payload.trade.outputAmount / (10 * (token.decimals)))
+                        setFieldValue('to', res.payload.trade.outputAmount)
                     }
                 })
             }
@@ -204,7 +204,7 @@ export const SwapForm: FC<IProps> = ({}) => {
                 tokenAmountFrom: val
             })).then((res) => {
                 if (res && res.payload.trade) {
-                    setFieldValue('to', +res.payload.trade.outputAmount / (10 * (selectedTokenTo.decimals)))
+                    setFieldValue('to', res.payload.trade.outputAmount)
                 }
             })
         }
@@ -220,7 +220,7 @@ export const SwapForm: FC<IProps> = ({}) => {
                 tokenAmountFrom: val
             })).then((res) => {
                 if (res && res.payload.trade) {
-                    setFieldValue('from', res.payload.trade.outputAmount / (10 * selectedTokenFrom.decimals))
+                    setFieldValue('from', res.payload.trade.outputAmount)
                 }
             })
         }
@@ -247,7 +247,7 @@ export const SwapForm: FC<IProps> = ({}) => {
             <CInputSelect
                 selectedToken={selectedTokenFrom}
                 label={'From'}
-                balance={fromToken ? (fromToken.value / (10 * (selectedTokenFrom.decimals))) : null}
+                balance={fromToken ? fromToken.value : null}
                 onClick={handleOnClickSelectToken('from')}
                 textFieldProps={{
                     value: values.from,
@@ -267,7 +267,7 @@ export const SwapForm: FC<IProps> = ({}) => {
                 }
                 <CInputSelect
                     selectedToken={selectedTokenTo}
-                    balance={toToken ? (toToken.value / (10 * selectedTokenTo.decimals)) : null}
+                    balance={toToken ? toToken.value : null}
                     onClick={handleOnClickSelectToken('to')}
                     label={selectedTab === 1 ? 'To Token' : 'To'}
                     onlyToken={selectedTab === 1}
