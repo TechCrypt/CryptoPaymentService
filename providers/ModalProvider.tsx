@@ -6,7 +6,7 @@ interface IModalContext {
     setCurrentModal?: Dispatch<SetStateAction<TModalId>>
 }
 
-export type TModalId = 'select-token' | null
+export type TModalId = 'select-token' | 'pay-with-tokens' | null
 
 export const ModalContext = createContext<IModalContext>({})
 

@@ -10,6 +10,8 @@ export interface IToken {
     symbol: string
     type: string
     balanceOf?: string | number
+    chainId: number
+    cAddress: string
 }
 
 export interface IGetTokens {

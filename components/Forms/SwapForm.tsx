@@ -211,15 +211,6 @@ export const SwapForm: FC<IProps> = ({}) => {
 
 
 
-    useEffect(() => {
-        if (web3 && address) {
-            const contract = new web3.eth.Contract(paymentAbi as unknown as AbiItem, paymentContractAddress)
-            contract.methods.getPartner('0xD155b2B8450B016dc399f939f0aA59D6b17C722a').call({from: address})
-                .then(console.log)
-        }
-    }, [web3, address])
-
-
     return <StyledContainer>
         <Tabs value={selectedTab} onChange={handleChangeTab} css={css`width: 100%`}>
             {

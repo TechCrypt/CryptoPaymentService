@@ -24,22 +24,15 @@ interface IProps {
 const links: IRouterLink[] = [
   {
     name: 'Product',
-    path: 'product'
+    path: '/store/netflix'
   },
   {
-    name: 'Company',
-    path: 'company'
-  },
-  {
-    name: 'Tokenomics',
+    name: 'Transactions',
     path: '/transactions'
   },
   {
-    name: 'Roadmap',
-    path: 'roadmap'
-  }, {
-    name: 'White paper',
-    path: 'white-paper'
+    name: 'Swap',
+    path: '/swap'
   }
 ]
 
@@ -63,21 +56,11 @@ const drawerLinks = [
     items: [
       {
         name: 'COMM Pay',
-        path: '/'
-      },
-      {
-        name: 'COMM Credit',
-        path: '/',
-        active: false
-      },
-      {
-        name: 'COMM Deposit',
-        path: '/',
-        active: false
+        path: '/store/netflix'
       },
       {
         name: 'COMM Swap',
-        path: '/',
+        path: '/swap',
         active: false
       }
     ] as IRouterLink[]

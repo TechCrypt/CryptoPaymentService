@@ -1,135 +1,129 @@
-import { NextPage } from 'next'
-import { Box } from '@mui/material'
-import { BlurLayout } from '../../../layouts/BlurLayout'
-import { ProductCard } from '../../../components/Cards/ProductCard'
-import { IProduct } from '../../../types/common.types'
-import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo } from 'react'
-import { useTypedSelector } from '../../../hooks/useTypedSelector'
-import { useAppDispatch } from '../../../hooks/useAppDispatch'
-import { addNotification } from '../../../store/slices/notifications/notifications.slice'
-import { CLink } from '../../../components/UI/CLink/CLink'
-import { useConnected } from '../../../hooks/useConnected'
-import { useWeb3 } from '../../../hooks/useWeb3'
+import {GetServerSideProps, NextPage} from 'next'
+import {Box} from '@mui/material'
+import {BlurLayout} from '../../../layouts/BlurLayout'
+import {ProductCard} from '../../../components/Cards/ProductCard'
+import {IProduct} from '../../../types/common.types'
+import {useRouter} from 'next/router'
+import {useCallback, useEffect, useMemo} from 'react'
+import {useTypedSelector} from '../../../hooks/useTypedSelector'
+import {useAppDispatch} from '../../../hooks/useAppDispatch'
+import {addNotification} from '../../../store/slices/notifications/notifications.slice'
+import {CLink} from '../../../components/UI/CLink/CLink'
+import {useConnected} from '../../../hooks/useConnected'
+import {useWeb3} from '../../../hooks/useWeb3'
 import Web3 from 'web3'
-
-const Types721 = {
-  Part: [
-    { name: 'account', type: 'address' },
-    { name: 'value', type: 'uint96' }
-  ],
-  Mint721: [
-    { name: 'tokenId', type: 'uint256' },
-    { name: 'tokenURI', type: 'string' },
-    { name: 'creators', type: 'Part[]' },
-    { name: 'royalties', type: 'Part[]' }
-  ]
-}
+import {IGetTokens, IToken} from "../../../types/swap.types";
+import {setTokens} from "../../../store/slices/swap/swap.slice";
+import {useModalManager} from "../../../hooks/useModalManager";
+import {PayWithTokens} from "../../../components/Modals/PayWithTokens";
 
 const DOMAIN_TYPE = [
-  {
-    type: 'string',
-    name: 'name',
-  },
-  {
-    type: 'string',
-    name: 'version',
-  },
-  {
-    type: 'uint256',
-    name: 'chainId',
-  },
-  {
-    type: 'address',
-    name: 'verifyingContract',
-  },
+    {
+        type: 'string',
+        name: 'name',
+    },
+    {
+        type: 'string',
+        name: 'version',
+    },
+    {
+        type: 'uint256',
+        name: 'chainId',
+    },
+    {
+        type: 'address',
+        name: 'verifyingContract',
+    },
 ]
 
-function createTypeData (domainData: any, primaryType: any, message: any, types: any) {
-  return {
-    types: Object.assign({
-      EIP712Domain: DOMAIN_TYPE,
-    }, types),
-    domain: domainData,
-    primaryType: primaryType,
-    message: message
-  }
+interface IProps {
+    data: IToken[]
+}
+
+const netflixToken: IToken = {
+    address: "0x07de306FF27a2B630B1141956844eB1552B956B5",
+    asset: "c60_t0x07de306FF27a2B630B1141956844eB1552B956B5",
+    cAddress: "0x3f0A0EA2f86baE6362CF9799B523BA06647Da018",
+    chainId: 42,
+    decimals: 6,
+    id: 150,
+    logoURI: "https://assets.trustwalletapp.com/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png",
+    name: "Tether USD",
+    pairs: [],
+    symbol: "USDT",
+    type: "ERC20",
 }
 
 
+const addressOfNetflix = '0xD155b2B8450B016dc399f939f0aA59D6b17C722a'
 
 
-const CheckoutPage: NextPage = () => {
-  const { isUserLogIn } = useTypedSelector(state => state.system)
+const CheckoutPage: NextPage<IProps> = ({data}) => {
 
-  useEffect(() => {
-    // if (isUserLogIn === false) {
-    //   router.push('/')
-    // }
-  }, [isUserLogIn])
+    const dispatch = useAppDispatch()
+
+    useEffect(() => {
+        if (data) {
+            console.log(data)
+            dispatch(setTokens(data))
+        }
+    }, [data])
 
 
+    const {isUserLogIn} = useTypedSelector(state => state.system)
 
-
-  const dispatch = useAppDispatch()
-  const {address} = useTypedSelector(state => state.blockchain)
-  const handleOnBuyClick = useCallback(() => {
-    // if (!isUserLogIn || !connected) {
-    //   dispatch(addNotification({
-    //     message: !isUserLogIn ? 'Please sign-in' : 'Please Connect MetaMask',
-    //     variant: 'error'
-    //   }))
-    // }
-    const web3 = new Web3(window['ethereum'])
-    const cb = () => {
-        dispatch(addNotification({
-          message: 'Success',
-          variant: 'success'
-        }))
-    }
-    if(web3) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //@ts-ignore
-      web3.currentProvider!.sendAsync(
-        {
-          jsonrpc: '2.0',
-          method: 'eth_signTypedData_v4',
-          params: [address, JSON.stringify({
-            none: 50
-          })],
-          id: new Date().getTime(),
-        },
-        cb
-      )
-    }
+    const {address} = useTypedSelector(state => state.blockchain)
+    const {setCurrentModal} = useModalManager()
+    const handleOnBuyClick = useCallback(() => {
+        setCurrentModal('pay-with-tokens')
     }, [isUserLogIn])
 
-  const { connected } = useConnected()
 
-  const router = useRouter()
-  const {query} = router
-  const computeContent = useMemo(() => {
-    const {imgSrc, price, currency, productId, productName} = query as unknown as IProduct
-    const product: IProduct = {
-      price: +price,
-      currency,
-      productId,
-      serviceName: query.serviceName as string
-    }
-    if(imgSrc) product.imgSrc = imgSrc
-    if(productName) product.productName = productName
-    return <ProductCard product={product} onBuyClick={handleOnBuyClick} />
-  }, [isUserLogIn, connected, query])
+    const {connected} = useConnected()
 
-  return <Box>
-    <BlurLayout>
-      <Box display={'flex'} flexDirection={'column'} alignItems={'center'} justifyContent={'center'} height={'100vh'}>
-        {
-          computeContent
+    const router = useRouter()
+    const {query} = router
+    const computeContent = useMemo(() => {
+        const {imgSrc, price, currency, productId, productName} = query as unknown as IProduct
+        const product: IProduct = {
+            price: +price,
+            currency,
+            productId,
+            serviceName: query.serviceName as string
         }
-      </Box>
-    </BlurLayout>
-  </Box>
+        if (imgSrc) product.imgSrc = imgSrc
+        if (productName) product.productName = productName
+        return <ProductCard token={netflixToken} product={product} onBuyClick={handleOnBuyClick}/>
+    }, [isUserLogIn, connected, query])
+
+    return <Box>
+        <BlurLayout>
+            <Box display={'flex'} flexDirection={'column'} alignItems={'center'} justifyContent={'center'}
+                 height={'100vh'}>
+                {
+                    computeContent
+                }
+            </Box>
+        </BlurLayout>
+        <PayWithTokens addressOfStore={addressOfNetflix} onChange={() => {
+        }}/>
+    </Box>
+}
+
+
+export const getServerSideProps: GetServerSideProps = async ({res}) => {
+    res.setHeader(
+        'Cache-Control',
+        'public, s-maxage=10, stale-while-revalidate=59'
+    )
+    const resData: Response = await fetch('http://80.240.28.79:90/api/v1/token/list')
+    const data: IGetTokens = await resData.json()
+
+    return {
+        props: {
+            data
+        }
+    }
 }
 
 
