@@ -102,6 +102,10 @@ export const PayWithTokens: FC<IProps> = ({onChange, store}) => {
                 message: 'Success Buy!',
                 variant: 'success'
             }))
+            dispatch(addNotification({
+                message: 'We Send You 500 TECHC!',
+                variant: 'success'
+            }))
             setCurrentModal(null)
         })
     }, [store, swapToken])

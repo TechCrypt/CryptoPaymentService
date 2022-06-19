@@ -81,6 +81,10 @@ export const SwapForm: FC<IProps> = ({}) => {
                 address,
                 addressTo: selectedTab === 1 && addressTo
             }).then(() => {
+                dispatch(addNotification({
+                    message: 'Success',
+                    variant: 'success'
+                }))
                 const fromTokenContract = new web3.eth.Contract(erc20ContractAbi as unknown as AbiItem, fromToken.address)
                 const toTokenContract = new web3.eth.Contract(erc20ContractAbi as unknown as AbiItem, toToken.address)
                 fromTokenContract.methods.balanceOf(address).call(address).then(res => {
@@ -156,7 +160,7 @@ export const SwapForm: FC<IProps> = ({}) => {
                     tokenAmountFrom: Number(values.from || values.to)
                 })).then((res) => {
                     if (res && res.payload.trade) {
-                        setFieldValue('from', res.payload.trade.outputAmount)
+                        setFieldValue('from', +res.payload.trade.outputAmount / (10 * (token.decimals)))
                     }
                 })
             }
@@ -178,7 +182,7 @@ export const SwapForm: FC<IProps> = ({}) => {
                     tokenAmountFrom: Number(values.to || values.from)
                 })).then((res) => {
                     if (res && res.payload.trade) {
-                        setFieldValue('to', res.payload.trade.outputAmount)
+                        setFieldValue('to', +res.payload.trade.outputAmount / (10 * (token.decimals)))
                     }
                 })
             }
@@ -200,7 +204,7 @@ export const SwapForm: FC<IProps> = ({}) => {
                 tokenAmountFrom: val
             })).then((res) => {
                 if (res && res.payload.trade) {
-                    setFieldValue('to', res.payload.trade.outputAmount)
+                    setFieldValue('to', +res.payload.trade.outputAmount / (10 * (selectedTokenTo.decimals)))
                 }
             })
         }
@@ -216,7 +220,7 @@ export const SwapForm: FC<IProps> = ({}) => {
                 tokenAmountFrom: val
             })).then((res) => {
                 if (res && res.payload.trade) {
-                    setFieldValue('from', res.payload.trade.outputAmount)
+                    setFieldValue('from', res.payload.trade.outputAmount / (10 * selectedTokenFrom.decimals))
                 }
             })
         }
@@ -243,7 +247,7 @@ export const SwapForm: FC<IProps> = ({}) => {
             <CInputSelect
                 selectedToken={selectedTokenFrom}
                 label={'From'}
-                balance={fromToken ? fromToken.value : null}
+                balance={fromToken ? (fromToken.value / (10 * (selectedTokenFrom.decimals))) : null}
                 onClick={handleOnClickSelectToken('from')}
                 textFieldProps={{
                     value: values.from,
@@ -257,11 +261,13 @@ export const SwapForm: FC<IProps> = ({}) => {
             <Divider/>
             <Box display={'flex'} alignItems={'center'}>
                 {
-                    selectedTab === 1 && <StyledTextField value={addressTo} onChange={(e) => setAddressTo(e.target.value)} placeholder={'Address To'}/>
+                    selectedTab === 1 &&
+                    <StyledTextField value={addressTo} onChange={(e) => setAddressTo(e.target.value)}
+                                     placeholder={'Address To'}/>
                 }
                 <CInputSelect
                     selectedToken={selectedTokenTo}
-                    balance={toToken ? toToken.value : null}
+                    balance={toToken ? (toToken.value / (10 * selectedTokenTo.decimals)) : null}
                     onClick={handleOnClickSelectToken('to')}
                     label={selectedTab === 1 ? 'To Token' : 'To'}
                     onlyToken={selectedTab === 1}
